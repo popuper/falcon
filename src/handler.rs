@@ -1,15 +1,24 @@
+use std::borrow::Borrow;
 use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use crate::response::Response;
+use crate::response::{Response, ResponseBody};
 
 pub fn handle(mut stream: TcpStream) {
     let mut buf = [0; 1024];
     stream.read(&mut buf).unwrap();
-    let cow = String::from_utf8_lossy(&buf).to_string();
-    println!("{cow}");
-    let response = fs::read_to_string("hello.html").unwrap();
-    let response = Response::default_as_200(response).format_to_ready();
-    stream.write(response.as_bytes()).unwrap();
+    let request = String::from_utf8_lossy(&buf).to_string();
+    println!("{request}");
+
+    //response
+    let body = fs::read_to_string("hello.html").unwrap();
+    let len = body.len();
+    let response_body = ResponseBody::building("text/html; charset=UTF-8".to_string(), body, len);
+
+    // let response =
+    //     Response::default_as_200(response,
+    //                              "text/html; charset=UTF-8".to_string())
+    //         .format_to_ready();
+    // stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }

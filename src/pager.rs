@@ -1,5 +1,8 @@
 //it's will find all the page under the pages directory
 
+use std::fs::ReadDir;
+use std::path::Path;
+
 pub struct PageFinder {
     pages: Vec<Page>,
 }
@@ -11,8 +14,13 @@ pub struct Page {
 
 
 impl PageFinder {
-    pub fn initial_and_loading() {
-        
+    pub fn initial_and_loading(&self) -> Self {
+        let path = Path::new("./pages");
+        let mut pages = vec![];
+        Self {
+            pages
+        }
     }
 }
+
 
