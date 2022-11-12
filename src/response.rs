@@ -63,7 +63,7 @@ pub struct ResponseHeader {
     content_type: String,
     expires: String,
     server: String,
-    set_cookie: Cookie,
+    set_cookie: Cookies,
     vary: String,
     date: String,
 }
@@ -79,7 +79,7 @@ impl ResponseHeader {
             content_type,
             expires: Utc::now().to_string().replace("UTC", "GMT"),
             server: "falcon/0.1".to_string(),
-            set_cookie: Cookie {},
+            set_cookie: Cookies { store: Vec::new() },
             vary: "".to_string(),
             date: Utc::now().to_string().replace("UTC", "GMT"),
         }
@@ -115,8 +115,33 @@ impl ResponseHeader {
     }
 }
 
+/*
+i don't know how to deal with the cookie
+*/
+struct Cookie(String, String);
+pub struct Cookies {
+    store: Vec<Cookie>,
+}
 
-pub struct Cookie {}
+impl Cookies {
+    pub fn default() -> Self {
+        Self {
+            store: Vec::new()
+        }
+    }
+    pub fn put_cookie(&mut self, k: String, v: String) {
+        self.store.push(Cookie(k, v))
+    }
+
+    pub fn format_to_ready(&self) {
+        let mut str = String::new();
+        for cookie in self.store.iter() {
+            str.push_str(cookie.0.as_str().clone());
+            str.push_str("=");
+            str.push_str(cookie.1.as_str().clone());
+        }
+    }
+}
 
 
 /* -------------------------it's OK-----------------------*/
