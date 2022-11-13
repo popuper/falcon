@@ -1,3 +1,5 @@
+use std::{borrow::Borrow, string};
+
 use chrono::Utc;
 
 #[allow(dead_code)]
@@ -7,12 +9,14 @@ pub struct Response {
     response_body: String,
 }
 
+
+/// now recommand use the struct `Body`
+#[deprecated]
 pub struct ResponseBody {
     content_type: String,
     content: String,
     len: usize,
 }
-
 impl ResponseBody {
     pub fn building(content_type: String, content: String, len: usize) -> Self {
         Self {
@@ -24,6 +28,36 @@ impl ResponseBody {
 }
 
 #[allow(dead_code)]
+pub struct Body {
+    content: String,
+    len: usize,
+    content_type: String,
+}
+
+#[allow(dead_code)]
+impl Body {
+    pub fn from_string(string: String) -> Self {
+        Self {
+            content: string.clone(),
+            len: string.len(),
+            content_type: parse_type(string.as_str()),
+        }
+    }
+    pub fn from_file(path: String) {}
+}
+
+fn parse_type(string: &str) -> String {
+    let mut res = String::new();
+    if string.starts_with("<!DOCTYPE html>") {
+        res.push_str("text/HTML");
+        res
+    } else {
+        res.push_str("text/plain");
+        res
+    }
+}
+
+#[allow(dead_code)]
 impl Response {
     pub fn custom_header(mut self, response_header: ResponseHeader) {
         self.response_header = response_header;
@@ -31,22 +65,32 @@ impl Response {
     pub fn default_as_200(response_body: ResponseBody) -> Self {
         Self {
             status_line: StatusLine::generate_using_200(),
-            response_header: ResponseHeader::building(response_body.len, response_body.content_type),
+            response_header: ResponseHeader::building(
+                response_body.len,
+                response_body.content_type,
+            ),
             response_body: response_body.content,
         }
     }
     pub fn default_as_404(response_body: ResponseBody) -> Self {
         Self {
             status_line: StatusLine::generate_using_404(),
-            response_header: ResponseHeader::building(response_body.len, response_body.content_type),
+            response_header: ResponseHeader::building(
+                response_body.len,
+                response_body.content_type,
+            ),
             response_body: response_body.content,
         }
     }
     pub fn format_to_ready(&self) -> String {
-        format!("{}{}{}", self.status_line.format_to_ready(), self.response_header.format_to_ready(), self.response_body)
+        format!(
+            "{}{}{}",
+            self.status_line.format_to_ready(),
+            self.response_header.format_to_ready(),
+            self.response_body
+        )
     }
 }
-
 
 pub struct ResponseHeader {
     // what's  method you allow
@@ -92,7 +136,8 @@ impl ResponseHeader {
     /// CRLF
     /// {body}
     fn format_to_ready(&self) -> String {
-        format!("Allow:{}\r\n\
+        format!(
+            "Allow:{}\r\n\
         Cache-Control:{}\r\n\
         Content-Encoding:{}\r\n\
         Content-Length:{}\r\n\
@@ -102,15 +147,15 @@ impl ResponseHeader {
         Vary:{}\r\n\
         Date:{}\r\n\
         \r\n",
-                self.allow,
-                self.cache_control,
-                self.content_encoding,
-                self.content_length,
-                self.content_type,
-                self.expires,
-                self.server,
-                self.vary,
-                self.date,
+            self.allow,
+            self.cache_control,
+            self.content_encoding,
+            self.content_length,
+            self.content_type,
+            self.expires,
+            self.server,
+            self.vary,
+            self.date,
         )
     }
 }
@@ -125,9 +170,7 @@ pub struct Cookies {
 
 impl Cookies {
     pub fn default() -> Self {
-        Self {
-            store: Vec::new()
-        }
+        Self { store: Vec::new() }
     }
     pub fn put_cookie(&mut self, k: String, v: String) {
         self.store.push(Cookie(k, v))
@@ -142,7 +185,6 @@ impl Cookies {
         }
     }
 }
-
 
 /* -------------------------it's OK-----------------------*/
 struct StatusLine {
@@ -204,7 +246,10 @@ impl StatusLine {
         }
     }
     fn format_to_ready(&self) -> String {
-        format!("{} {} {}\r\n", self.version, self.status_code as usize, self.description)
+        format!(
+            "{} {} {}\r\n",
+            self.version, self.status_code as usize, self.description
+        )
     }
 }
 
@@ -220,8 +265,8 @@ enum StatusCode {
 
 #[cfg(test)]
 mod tests {
-    use chrono::{Utc};
     use crate::response::StatusLine;
+    use chrono::Utc;
 
     #[test]
     fn test_for_status_code() {
@@ -241,4 +286,3 @@ mod tests {
         println!("{string}")
     }
 }
-
