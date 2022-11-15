@@ -1,14 +1,17 @@
-use std::{borrow::Borrow, string};
+///
+/// this API is deprecated permanently
+/// use responser instead
+///
 
 use chrono::Utc;
 
+#[deprecated]
 #[allow(dead_code)]
 pub struct Response {
     status_line: StatusLine,
     response_header: ResponseHeader,
     response_body: String,
 }
-
 
 /// now recommand use the struct `Body`
 #[deprecated]
@@ -27,36 +30,7 @@ impl ResponseBody {
     }
 }
 
-#[allow(dead_code)]
-pub struct Body {
-    content: String,
-    len: usize,
-    content_type: String,
-}
-
-#[allow(dead_code)]
-impl Body {
-    pub fn from_string(string: String) -> Self {
-        Self {
-            content: string.clone(),
-            len: string.len(),
-            content_type: parse_type(string.as_str()),
-        }
-    }
-    pub fn from_file(path: String) {}
-}
-
-fn parse_type(string: &str) -> String {
-    let mut res = String::new();
-    if string.starts_with("<!DOCTYPE html>") {
-        res.push_str("text/HTML");
-        res
-    } else {
-        res.push_str("text/plain");
-        res
-    }
-}
-
+#[deprecated]
 #[allow(dead_code)]
 impl Response {
     pub fn custom_header(mut self, response_header: ResponseHeader) {
@@ -160,33 +134,8 @@ impl ResponseHeader {
     }
 }
 
-/*
-i don't know how to deal with the cookie
-*/
-struct Cookie(String, String);
-pub struct Cookies {
-    store: Vec<Cookie>,
-}
-
-impl Cookies {
-    pub fn default() -> Self {
-        Self { store: Vec::new() }
-    }
-    pub fn put_cookie(&mut self, k: String, v: String) {
-        self.store.push(Cookie(k, v))
-    }
-
-    pub fn format_to_ready(&self) {
-        let mut str = String::new();
-        for cookie in self.store.iter() {
-            str.push_str(cookie.0.as_str().clone());
-            str.push_str("=");
-            str.push_str(cookie.1.as_str().clone());
-        }
-    }
-}
-
 /* -------------------------it's OK-----------------------*/
+#[deprecated]
 struct StatusLine {
     version: String,
     status_code: StatusCode,
@@ -253,6 +202,8 @@ impl StatusLine {
     }
 }
 
+#[deprecated]
+#[derive(Clone, Copy)]
 enum StatusCode {
     Ok = 200,
     BadRequest = 400,

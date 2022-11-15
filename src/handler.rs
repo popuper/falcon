@@ -1,7 +1,7 @@
+use crate::response::{Response, ResponseBody};
 use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpStream;
-use crate::response::{Response, ResponseBody};
 
 pub fn handle(mut stream: TcpStream) {
     let mut buf = [0; 1024];
@@ -10,7 +10,7 @@ pub fn handle(mut stream: TcpStream) {
     println!("{request}");
 
     //response
-    let body = fs::read_to_string("hello.html").unwrap();
+    let body = fs::read_to_string("./pages/example.html").unwrap();
     let len = body.len();
     let response_body = ResponseBody::building("text/html; charset=UTF-8".to_string(), body, len);
     let response = Response::default_as_200(response_body).format_to_ready();
